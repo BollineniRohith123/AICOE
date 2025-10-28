@@ -136,7 +136,7 @@ backend:
     implemented: true
     working: false
     file: "backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -149,6 +149,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ BLOCKED: Multi-agent workflow blocked by LLM budget limit. WebSocket connection and message initiation work correctly, but workflow fails with 'Budget has been exceeded! Current cost: 0.418, Max budget: 0.4'. This prevents testing of the full 4-agent workflow (PM→BA→UX→UI). Infrastructure is working, but usage limits prevent execution."
+      - working: false
+        agent: "testing"
+        comment: "❌ STILL BLOCKED: Despite Gemini-only configuration, text mode workflow still fails with budget limit error 'Budget has been exceeded! Current cost: 0.41803625000000005, Max budget: 0.4'. The issue is that emergentintegrations library is routing gemini-2.5-pro through a budget-limited service instead of direct Gemini API. WebSocket connection and infrastructure work correctly."
 
   - task: "OpenAI Realtime Voice API Integration"
     implemented: true
