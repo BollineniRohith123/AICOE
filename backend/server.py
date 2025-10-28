@@ -516,6 +516,7 @@ async def generate_artifact(data: dict):
     return {"success": True, "artifact_type": artifact_type, "content": content}
 
 app.include_router(api_router)
+api_router.include_router(realtime_router)
 
 app.add_middleware(
     CORSMiddleware,
