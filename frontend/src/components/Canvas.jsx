@@ -4,14 +4,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { FileText, Users, Layout, Sparkles, Code, Eye } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
-import jsx from 'react-syntax-highlighter/dist/esm/languages/prism/jsx';
-
-// Register languages
-SyntaxHighlighter.registerLanguage('javascript', javascript);
-SyntaxHighlighter.registerLanguage('jsx', jsx);
+// Temporary simple code highlighter to fix compilation issues
+const SyntaxHighlighter = ({ children, language, style, customStyle, showLineNumbers, ...props }) => (
+  <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-auto text-sm font-mono" style={customStyle}>
+    <code>{children}</code>
+  </pre>
+);
 import ReactRenderer from './ReactRenderer';
 
 const EnhancedCanvas = ({ artifacts, mode }) => {
