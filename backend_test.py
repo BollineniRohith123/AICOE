@@ -230,33 +230,44 @@ class BackendTester:
             self.log_result("Gemini WebSocket Connection", False, "Connection failed", str(e))
 
     def test_artifact_generation(self):
-        """Test 4: Artifact Generation (Voice Mode)"""
-        print("🔍 Test 4: Artifact Generation")
+        """Test 6: Artifact Generation (Voice Mode)"""
+        print("🔍 Test 6: Artifact Generation")
         
         if not self.test_project_id:
             self.log_result("Artifact Generation", False, "No test project available", "Create project first")
             return
 
-        try:
-            artifact_data = {
-                "project_id": self.test_project_id,
-                "artifact_type": "vision",
-                "context": "I want to build a modern task management application with real-time collaboration features"
-            }
-            
-            response = self.session.post(f"{API_BASE}/voice/generate-artifact", json=artifact_data)
-            
-            if response.status_code == 200:
-                result = response.json()
-                if result.get('success') and 'content' in result:
-                    content_length = len(result['content'])
-                    self.log_result("Artifact Generation", True, f"Vision document generated ({content_length} chars)")
+        # Test different artifact types
+        artifact_types = [
+            ("vision", "I want to build a modern e-commerce platform with AI-powered recommendations"),
+            ("usecases", "Create use cases for a social media management dashboard"),
+            ("prototype", "Build a React component for a user profile management system")
+        ]
+
+        for artifact_type, context in artifact_types:
+            try:
+                artifact_data = {
+                    "project_id": self.test_project_id,
+                    "artifact_type": artifact_type,
+                    "context": context
+                }
+                
+                response = self.session.post(f"{API_BASE}/voice/generate-artifact", json=artifact_data)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get('success') and 'content' in result:
+                        content_length = len(result['content'])
+                        self.log_result(f"Artifact Generation ({artifact_type})", True, 
+                                      f"{artifact_type.title()} generated ({content_length} chars)")
+                    else:
+                        self.log_result(f"Artifact Generation ({artifact_type})", False, 
+                                      "Invalid response format", str(result))
                 else:
-                    self.log_result("Artifact Generation", False, "Invalid response format", str(result))
-            else:
-                self.log_result("Artifact Generation", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("Artifact Generation", False, "Request failed", str(e))
+                    self.log_result(f"Artifact Generation ({artifact_type})", False, 
+                                  f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result(f"Artifact Generation ({artifact_type})", False, "Request failed", str(e))
 
     async def test_websocket_workflow(self):
         """Test 5: WebSocket Text Mode Workflow"""
