@@ -503,7 +503,7 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
         return (
           <div className="flex items-center gap-2 text-green-500">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">Connected ({provider.toUpperCase()})</span>
+            <span className="text-sm font-medium">Connected (Gemini Live)</span>
           </div>
         );
       case 'error':
