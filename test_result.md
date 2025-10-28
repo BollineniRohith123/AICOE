@@ -149,11 +149,11 @@ backend:
 
   - task: "OpenAI Realtime Voice API Integration"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -164,6 +164,9 @@ backend:
       - working: true
         agent: "main"
         comment: "✅ Enhanced with configuration support. Can be enabled/disabled via ENABLE_OPENAI_REALTIME in .env. Ready for re-testing with dual provider support."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: OpenAI session creation fails with 'Incorrect API key provided: sk-emerg-'. The Emergent Integrations API key format (sk-emerg-) is not compatible with OpenAI's Realtime API which expects standard OpenAI keys (sk-proj-, sk-None-, sk-svcacct-). SDP negotiate endpoint is accessible. This is a fundamental API key compatibility issue."
 
   - task: "Google Gemini Live API Integration"
     implemented: true
