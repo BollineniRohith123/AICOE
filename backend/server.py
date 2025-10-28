@@ -93,6 +93,8 @@ class EnhancedAgentOrchestrator:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
+        # Initialize direct Gemini client
+        self.gemini_client = genai.Client(api_key=api_key)
         self.agents = {
             "pm": {
                 "name": "Alex (Project Manager)",
