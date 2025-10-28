@@ -107,9 +107,7 @@ const EnhancedCanvas = ({ artifacts, mode }) => {
           const match = /language-(\w+)/.exec(className || '');
           return !inline && match ? (
             <SyntaxHighlighter
-              style={vscDarkPlus}
               language={match[1]}
-              PreTag="div"
               className="rounded-lg my-4 animate-fade-in"
             >
               {String(children).replace(/\n$/, '')}
