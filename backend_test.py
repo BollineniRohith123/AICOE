@@ -385,32 +385,73 @@ class BackendTester:
         except Exception as e:
             self.log_result("Get Project Messages", False, "Request failed", str(e))
 
+    def test_gemini_configuration_verification(self):
+        """Test: Verify Gemini-only configuration"""
+        print("🔍 Test: Gemini Configuration Verification")
+        
+        try:
+            response = self.session.get(f"{API_BASE}/realtime/config")
+            if response.status_code == 200:
+                config = response.json()
+                
+                # Verify Gemini-only configuration
+                expected_provider = "gemini"
+                expected_gemini_enabled = True
+                expected_openai_enabled = False
+                
+                provider_ok = config.get('provider') == expected_provider
+                gemini_ok = config.get('gemini_enabled') == expected_gemini_enabled
+                openai_ok = config.get('openai_enabled') == expected_openai_enabled
+                
+                if provider_ok and gemini_ok and openai_ok:
+                    self.log_result("Gemini Configuration Verification", True, 
+                                  f"✅ REALTIME_PROVIDER='{config['provider']}', gemini_enabled={config['gemini_enabled']}, openai_enabled={config['openai_enabled']}")
+                    return True
+                else:
+                    issues = []
+                    if not provider_ok:
+                        issues.append(f"provider='{config.get('provider')}' (expected '{expected_provider}')")
+                    if not gemini_ok:
+                        issues.append(f"gemini_enabled={config.get('gemini_enabled')} (expected {expected_gemini_enabled})")
+                    if not openai_ok:
+                        issues.append(f"openai_enabled={config.get('openai_enabled')} (expected {expected_openai_enabled})")
+                    
+                    self.log_result("Gemini Configuration Verification", False, 
+                                  "Configuration mismatch", f"Issues: {', '.join(issues)}")
+            else:
+                self.log_result("Gemini Configuration Verification", False, 
+                              f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Gemini Configuration Verification", False, "Request failed", str(e))
+        return False
+
     async def run_all_tests(self):
-        """Run all backend tests"""
-        print("🚀 Starting AICOE Genesis Backend Tests - DUAL REALTIME API SUPPORT")
+        """Run all backend tests - GEMINI ONLY CONFIGURATION"""
+        print("🚀 Starting AICOE Genesis Backend Tests - GEMINI ONLY CONFIGURATION")
+        print("🎯 Focus: Google Gemini Live API, Text Mode Multi-Agent Workflow, Artifact Generation")
         print("=" * 80)
         
         # Run synchronous tests
         self.test_health_check()
+        
+        # 1. Configuration Verification - CRITICAL
+        gemini_config_ok = self.test_gemini_configuration_verification()
+        
+        # 2. MongoDB CRUD Operations
         self.test_project_management()
+        self.test_crud_operations()
         
-        # Test realtime configuration first
-        config = self.test_realtime_config()
-        
-        # Test OpenAI endpoints
-        self.test_openai_realtime_endpoints()
-        
-        # Test Gemini WebSocket (async)
+        # 3. Google Gemini Live API (Voice Mode) - CRITICAL
         await self.test_gemini_websocket()
         
-        # Test artifact generation
-        self.test_artifact_generation()
-        
-        # Test WebSocket workflow
+        # 4. Text Mode Multi-Agent Workflow (Gemini 2.5 Pro) - CRITICAL
         await self.test_websocket_workflow()
         
-        # Test additional CRUD operations
-        self.test_crud_operations()
+        # 5. Artifact Generation - CRITICAL
+        self.test_artifact_generation()
+        
+        # Skip OpenAI tests since it's disabled
+        print("⏭️  Skipping OpenAI Realtime API tests (disabled in Gemini-only configuration)")
         
         # Print summary
         print("=" * 80)
