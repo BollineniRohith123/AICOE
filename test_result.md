@@ -285,12 +285,14 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Google Gemini Live API Integration"
+    - "Dual Realtime Provider Configuration"
     - "OpenAI Realtime Voice API Integration"
     - "Voice Mode WebRTC Connection"
     - "Text Mode Multi-Agent Workflow"
     - "Dynamic React Renderer"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:
