@@ -541,27 +541,19 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
 
           <div className="bg-card border rounded-xl p-6 space-y-4">
             <div className="flex items-center gap-2 mb-4">
-              <Settings className="w-5 h-5" />
-              <h3 className="font-semibold">Select AI Provider</h3>
+              <Settings className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold">AI Provider</h3>
             </div>
-            <Select value={provider} onValueChange={setProvider} disabled={isInitializing}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select provider" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="openai" disabled={!availableProviders.openai}>
-                  OpenAI Realtime API {!availableProviders.openai && "(Not Available)"}
-                </SelectItem>
-                <SelectItem value="gemini" disabled={!availableProviders.gemini}>
-                  Google Gemini Live {!availableProviders.gemini && "(Not Available)"}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-muted-foreground">
-              {provider === 'openai' 
-                ? "Using OpenAI's GPT-4 with real-time audio capabilities"
-                : "Using Google's Gemini 2.0 with live streaming"}
-            </p>
+            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-2xl">🤖</span>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-purple-900 dark:text-purple-100">Google Gemini Live</p>
+                <p className="text-sm text-purple-700 dark:text-purple-300">Real-time streaming with Gemini 2.0</p>
+              </div>
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
