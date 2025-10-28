@@ -206,6 +206,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: Dual provider configuration working perfectly. /api/realtime/config endpoint returns correct status: Provider: openai, OpenAI: true, Gemini: true. Both providers are enabled and initialized. Configuration endpoint provides all required fields including available_providers object. Backend logs confirm both APIs initialize successfully on startup."
+      - working: true
+        agent: "testing"
+        comment: "✅ GEMINI-ONLY CONFIG VERIFIED: Configuration endpoint correctly shows REALTIME_PROVIDER='gemini', gemini_enabled=true, openai_enabled=false. Backend properly configured for Gemini-only operation as requested. Configuration API working perfectly."
 
   - task: "MongoDB Models and CRUD APIs"
     implemented: true
