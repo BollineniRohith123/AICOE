@@ -336,12 +336,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Frontend Voice Mode UI (Gemini only)"
-    - "Frontend Text Mode UI Testing"
-    - "Frontend Artifact Display and Rendering"
-    - "Overall UI/UX Verification"
+    - "Integration Testing Complete"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
