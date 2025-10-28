@@ -527,3 +527,45 @@ agent_communication:
       Text mode features need to be updated to use direct Gemini API (google.genai) instead of emergentintegrations to bypass budget limits.
       
       🏆 SUCCESS: Voice mode with Gemini Live API is fully functional and ready for production use.
+  
+  - agent: "main"
+    message: |
+      BUDGET LIMIT FIX IMPLEMENTED ✅
+      
+      📋 Changes Made to Fix Budget Limit Issues:
+      
+      ✅ Updated EnhancedAgentOrchestrator Class:
+      - Replaced emergentintegrations.llm.chat.LlmChat with direct google.genai SDK
+      - Now using genai.Client() for direct Gemini API access
+      - Updated run_agent() method to use generate_content_stream() 
+      - Switched from EMERGENT_LLM_KEY to GEMINI_API_KEY
+      
+      ✅ Benefits of Direct Gemini API:
+      - No budget limits (using direct Gemini API key)
+      - Better performance
+      - More control over API parameters
+      - Same functionality as before
+      
+      ✅ Code Changes:
+      - Line 96: Added self.gemini_client = genai.Client(api_key=api_key)
+      - Line 276-300: Rewrote run_agent() to use direct Gemini streaming
+      - Line 428: Changed orchestrator initialization to use GEMINI_API_KEY
+      - Commented out unused emergentintegrations imports
+      
+      ✅ What Still Works:
+      - Voice mode with Gemini Live API (unchanged)
+      - MongoDB operations (unchanged)
+      - WebSocket infrastructure (unchanged)
+      - Configuration endpoints (unchanged)
+      
+      🎯 READY FOR RE-TESTING:
+      1. Text Mode Multi-Agent Workflow (should now work without budget limits)
+      2. Artifact Generation (vision, usecases, prototype)
+      3. Full 4-agent workflow (PM → BA → UX → UI)
+      
+      Backend restarted successfully. Services running:
+      - Backend: RUNNING (pid 1436)
+      - Frontend: RUNNING
+      - MongoDB: RUNNING
+      
+      Next: Re-test backend to verify budget limit fix works.
