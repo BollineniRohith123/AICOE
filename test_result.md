@@ -185,6 +185,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: Gemini Live API fully functional. WebSocket connection established successfully at /api/gemini/live. Test messages sent and received responses from Gemini Live API. Bidirectional communication working correctly. API properly configured with gemini-2.0-flash-exp model and Aoede voice."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TEST: Gemini Live WebSocket working perfectly. Connection established, text messages sent successfully, receiving audio responses (binary data) and JSON control messages. Bidirectional communication confirmed. API responds with audio data chunks and turn_complete signals as expected."
 
   - task: "Dual Realtime Provider Configuration"
     implemented: true
