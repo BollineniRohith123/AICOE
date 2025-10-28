@@ -414,12 +414,146 @@ orchestrator = EnhancedAgentOrchestrator(EMERGENT_LLM_KEY)
 
 # ==================== REALTIME VOICE API ====================
 
-# Initialize OpenAI Realtime for voice
-realtime_chat = OpenAIChatRealtime(api_key=EMERGENT_LLM_KEY)
+# Initialize realtime API clients based on configuration
+realtime_chat = None
+gemini_client = None
+
+if ENABLE_OPENAI_REALTIME and EMERGENT_LLM_KEY:
+    logger.info("Initializing OpenAI Realtime API")
+    realtime_chat = OpenAIChatRealtime(api_key=EMERGENT_LLM_KEY)
+
+if ENABLE_GEMINI_LIVE and GEMINI_API_KEY and GEMINI_AVAILABLE:
+    logger.info("Initializing Google Gemini Live API")
+    gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Create realtime router
 realtime_router = APIRouter()
-OpenAIChatRealtime.register_openai_realtime_router(realtime_router, realtime_chat)
+
+# Register OpenAI routes if enabled
+if ENABLE_OPENAI_REALTIME and realtime_chat:
+    OpenAIChatRealtime.register_openai_realtime_router(realtime_router, realtime_chat)
+    logger.info("OpenAI Realtime routes registered")
+
+# Gemini Live API WebSocket endpoint
+@realtime_router.websocket("/gemini/live")
+async def gemini_live_websocket(websocket: WebSocket):
+    """WebSocket endpoint for Gemini Live API bidirectional streaming"""
+    if not ENABLE_GEMINI_LIVE or not gemini_client:
+        await websocket.close(code=1008, reason="Gemini Live API not enabled or configured")
+        return
+    
+    await websocket.accept()
+    logger.info("Gemini Live WebSocket connection established")
+    
+    try:
+        # Configure Gemini Live session
+        config = types.LiveConnectConfig(
+            response_modalities=["audio"],
+            speech_config=types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                        voice_name="Aoede"  # Professional female voice
+                    )
+                )
+            ),
+            tools=[]  # Can add tools for function calling
+        )
+        
+        # Start Gemini Live session
+        async with gemini_client.aio.live.connect(
+            model="gemini-2.0-flash-exp",
+            config=config
+        ) as session:
+            
+            # Task to receive audio from client and send to Gemini
+            async def client_to_gemini():
+                try:
+                    while True:
+                        message = await websocket.receive()
+                        
+                        if "bytes" in message:
+                            # Audio data from client
+                            audio_chunk = message["bytes"]
+                            await session.send(input=audio_chunk, end_of_turn=False)
+                        
+                        elif "text" in message:
+                            # Control messages from client
+                            data = json.loads(message["text"])
+                            if data.get("type") == "end_turn":
+                                await session.send(input="", end_of_turn=True)
+                            elif data.get("type") == "text_message":
+                                # Send text message to Gemini
+                                await session.send(input=data.get("message", ""), end_of_turn=True)
+                
+                except WebSocketDisconnect:
+                    logger.info("Client disconnected from Gemini Live")
+                except Exception as e:
+                    logger.error(f"Error in client_to_gemini: {str(e)}")
+            
+            # Task to receive from Gemini and send to client
+            async def gemini_to_client():
+                try:
+                    async for response in session.receive():
+                        # Handle different response types
+                        if response.server_content:
+                            if response.server_content.model_turn:
+                                for part in response.server_content.model_turn.parts:
+                                    if part.inline_data:
+                                        # Audio data from Gemini
+                                        await websocket.send_bytes(part.inline_data.data)
+                                    elif part.text:
+                                        # Text response from Gemini
+                                        await websocket.send_json({
+                                            "type": "transcript",
+                                            "role": "assistant",
+                                            "text": part.text
+                                        })
+                            
+                            if response.server_content.turn_complete:
+                                await websocket.send_json({"type": "turn_complete"})
+                        
+                        # Handle function calls if tools are configured
+                        if response.tool_call:
+                            await websocket.send_json({
+                                "type": "tool_call",
+                                "tool_call": str(response.tool_call)
+                            })
+                
+                except Exception as e:
+                    logger.error(f"Error in gemini_to_client: {str(e)}")
+            
+            # Run both tasks concurrently
+            await asyncio.gather(
+                client_to_gemini(),
+                gemini_to_client(),
+                return_exceptions=True
+            )
+    
+    except Exception as e:
+        logger.error(f"Gemini Live WebSocket error: {str(e)}")
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)})
+        except:
+            pass
+    finally:
+        try:
+            await websocket.close()
+        except:
+            pass
+
+# Get realtime provider configuration endpoint
+@realtime_router.get("/config")
+async def get_realtime_config():
+    """Get current realtime API configuration"""
+    return {
+        "provider": REALTIME_PROVIDER,
+        "openai_enabled": ENABLE_OPENAI_REALTIME and realtime_chat is not None,
+        "gemini_enabled": ENABLE_GEMINI_LIVE and gemini_client is not None,
+        "available_providers": {
+            "openai": ENABLE_OPENAI_REALTIME and realtime_chat is not None,
+            "gemini": ENABLE_GEMINI_LIVE and gemini_client is not None
+        }
+    }
 
 # ==================== API ROUTES ====================
 
