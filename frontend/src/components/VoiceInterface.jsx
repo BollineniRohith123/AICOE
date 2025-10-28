@@ -357,7 +357,7 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
   const [transcript, setTranscript] = useState([]);
   const [isInitializing, setIsInitializing] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
-  const [provider, setProvider] = useState('openai'); // 'openai' or 'gemini'
+  const [provider, setProvider] = useState('gemini'); // Using Gemini only
   const [availableProviders, setAvailableProviders] = useState({ openai: false, gemini: false });
   const scrollRef = useRef(null);
   const chatRef = useRef(null);
@@ -369,7 +369,8 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
       try {
         const response = await axios.get(`${API}/realtime/config`);
         setAvailableProviders(response.data.available_providers);
-        setProvider(response.data.provider || 'openai');
+        // Always use Gemini
+        setProvider('gemini');
       } catch (error) {
         console.error("Error fetching realtime config:", error);
       }
