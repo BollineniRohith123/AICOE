@@ -153,7 +153,7 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -161,6 +161,33 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: Realtime API endpoints working. Fixed router registration issue (removed duplicate /realtime prefix). Both /api/realtime/session and /api/realtime/negotiate endpoints accessible and responding correctly. API key validation working as expected."
+      - working: true
+        agent: "main"
+        comment: "✅ Enhanced with configuration support. Can be enabled/disabled via ENABLE_OPENAI_REALTIME in .env. Ready for re-testing with dual provider support."
+
+  - task: "Google Gemini Live API Integration"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ NEW: Integrated Google Gemini Live API with WebSocket endpoint at /api/gemini/live. Supports bidirectional audio streaming, real-time transcription, and can be configured with tools for function calling. Uses google-genai SDK with gemini-2.0-flash-exp model. Can be enabled/disabled via ENABLE_GEMINI_LIVE in .env. Needs comprehensive testing."
+
+  - task: "Dual Realtime Provider Configuration"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py, backend/.env"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ NEW: Added .env configuration to support both OpenAI and Gemini realtime APIs. Configuration includes ENABLE_OPENAI_REALTIME, ENABLE_GEMINI_LIVE, REALTIME_PROVIDER, and GEMINI_API_KEY. Added /api/realtime/config endpoint to get current provider configuration. Both providers successfully initialized in logs. Needs testing to verify switching between providers."
 
   - task: "MongoDB Models and CRUD APIs"
     implemented: true
