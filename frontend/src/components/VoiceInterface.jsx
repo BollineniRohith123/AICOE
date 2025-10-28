@@ -588,7 +588,7 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
 
           <Button
             onClick={handleStartConversation}
-            disabled={isInitializing || (!availableProviders.openai && !availableProviders.gemini)}
+            disabled={isInitializing || !availableProviders.gemini}
             size="lg"
             className="w-full max-w-xs mx-auto h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
           >
@@ -605,8 +605,8 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
             )}
           </Button>
           
-          {!availableProviders.openai && !availableProviders.gemini && (
-            <p className="text-sm text-red-500">No realtime providers are currently available</p>
+          {!availableProviders.gemini && (
+            <p className="text-sm text-red-500">Gemini Live API is not currently available. Please check backend configuration.</p>
           )}
         </div>
       </div>
