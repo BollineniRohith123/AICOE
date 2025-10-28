@@ -426,50 +426,70 @@ class BackendTester:
         return False
 
     async def run_all_tests(self):
-        """Run all backend tests - GEMINI ONLY CONFIGURATION"""
-        print("🚀 Starting AICOE Genesis Backend Tests - GEMINI ONLY CONFIGURATION")
-        print("🎯 Focus: Google Gemini Live API, Text Mode Multi-Agent Workflow, Artifact Generation")
+        """RE-TEST AFTER BUDGET LIMIT FIX - Focus on Direct Gemini API Integration"""
+        print("🚀 RE-TESTING AFTER BUDGET LIMIT FIX")
+        print("🎯 FOCUS: Text Mode Multi-Agent Workflow + Artifact Generation (Direct Gemini API)")
+        print("📋 Changes: EnhancedAgentOrchestrator now uses genai.Client() instead of emergentintegrations")
+        print("🔑 Expected: NO budget limit errors, full 4-agent workflow completion")
         print("=" * 80)
         
-        # Run synchronous tests
+        # Basic health checks first
         self.test_health_check()
-        
-        # 1. Configuration Verification - CRITICAL
         gemini_config_ok = self.test_gemini_configuration_verification()
         
-        # 2. MongoDB CRUD Operations
+        # Setup test project for workflow testing
         self.test_project_management()
-        self.test_crud_operations()
         
-        # 3. Google Gemini Live API (Voice Mode) - CRITICAL
-        await self.test_gemini_websocket()
+        # HIGH PRIORITY TESTS - Previously blocked by budget limits
+        print("\n🔥 HIGH PRIORITY: Testing Previously Blocked Features")
+        print("=" * 50)
         
-        # 4. Text Mode Multi-Agent Workflow (Gemini 2.5 Pro) - CRITICAL
+        # 1. Text Mode Multi-Agent Workflow - HIGHEST PRIORITY
+        print("🎯 PRIORITY 1: Text Mode Multi-Agent Workflow")
+        print("   Previously blocked by: 'Budget has been exceeded! Current cost: 0.418, Max budget: 0.4'")
+        print("   Expected: Full PM→BA→UX→UI workflow completion with NO budget errors")
         await self.test_websocket_workflow()
         
-        # 5. Artifact Generation - CRITICAL
+        # 2. Artifact Generation Endpoints - HIGHEST PRIORITY  
+        print("\n🎯 PRIORITY 2: Artifact Generation Endpoints")
+        print("   Previously blocked by: HTTP 500 due to same budget limit")
+        print("   Expected: All three types (vision, usecases, prototype) working")
         self.test_artifact_generation()
         
-        # Skip OpenAI tests since it's disabled
-        print("⏭️  Skipping OpenAI Realtime API tests (disabled in Gemini-only configuration)")
+        # 3. Gemini Live API - Verify Still Working
+        print("\n🎯 PRIORITY 3: Gemini Live API (Verify Still Working)")
+        print("   Expected: Voice mode unchanged, should still work")
+        await self.test_gemini_websocket()
         
-        # Print summary
+        # 4. Additional CRUD verification
+        self.test_crud_operations()
+        
+        # Print focused summary
         print("=" * 80)
-        print("📊 COMPREHENSIVE TEST SUMMARY")
+        print("📊 BUDGET LIMIT FIX TEST RESULTS")
         print(f"✅ Passed: {self.results['passed']}")
         print(f"❌ Failed: {self.results['failed']}")
         total_tests = self.results['passed'] + self.results['failed']
         if total_tests > 0:
-            print(f"📈 Success Rate: {(self.results['passed']/total_tests*100):.1f}%")
+            success_rate = (self.results['passed']/total_tests*100)
+            print(f"📈 Success Rate: {success_rate:.1f}%")
+            
+            # Specific focus on budget limit fix
+            budget_related_errors = [e for e in self.results['errors'] if 'budget' in e.lower() or 'cost' in e.lower()]
+            if budget_related_errors:
+                print(f"\n🚨 BUDGET LIMIT ISSUES STILL PRESENT:")
+                for error in budget_related_errors:
+                    print(f"  • {error}")
+            else:
+                print(f"\n✅ NO BUDGET LIMIT ERRORS DETECTED!")
         
         if self.results['errors']:
-            print("\n🚨 CRITICAL ISSUES FOUND:")
+            print("\n🚨 ALL ISSUES FOUND:")
             for error in self.results['errors']:
                 print(f"  • {error}")
-        else:
-            print("\n🎉 NO CRITICAL ISSUES FOUND!")
         
         print(f"\n⏰ Test Completed: {datetime.now()}")
+        print("🎯 Key Focus: Text mode workflow and artifact generation should now work WITHOUT budget limits")
         return self.results
 
 async def main():
