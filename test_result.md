@@ -252,6 +252,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Completely rewritten VoiceInterface with WebRTC client class. Implements: microphone capture, audio streaming, data channel for transcripts, real-time conversation UI. Needs end-to-end testing."
+      - working: "NA"
+        agent: "main"
+        comment: "✅ ENHANCED: Added dual provider support (OpenAI + Gemini). Users can select provider via dropdown. Implemented GeminiLiveChat class for WebSocket-based audio streaming. Added provider configuration fetch from backend. Supports both OpenAI WebRTC and Gemini WebSocket streaming. Needs comprehensive testing with both providers."
 
   - task: "Canvas with Artifact Display"
     implemented: true
