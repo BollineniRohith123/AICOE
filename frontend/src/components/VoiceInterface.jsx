@@ -399,22 +399,15 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
       // Create a project if one doesn't exist
       if (!currentProject) {
         const response = await axios.post(`${API}/projects`, {
-          name: `Voice Project (${provider})`,
-          description: `Created via voice mode using ${provider}`,
+          name: `Voice Project (Gemini)`,
+          description: `Created via voice mode using Gemini Live API`,
           mode: 'voice'
         });
         onProjectStart(response.data);
       }
 
-      // Initialize connection based on provider
-      let chat;
-      if (provider === 'openai') {
-        chat = new RealtimeAudioChat();
-      } else if (provider === 'gemini') {
-        chat = new GeminiLiveChat();
-      } else {
-        throw new Error(`Unknown provider: ${provider}`);
-      }
+      // Initialize Gemini Live Chat
+      const chat = new GeminiLiveChat();
       
       chat.onStatusUpdate = (status) => {
         setConnectionStatus(status);
