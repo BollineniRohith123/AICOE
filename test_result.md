@@ -306,15 +306,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "OpenAI Realtime Voice API Integration"
-    - "Text Mode Multi-Agent Workflow"
-    - "Artifact Generation Endpoint"
-  stuck_tasks:
-    - "OpenAI Realtime Voice API Integration"
-    - "Text Mode Multi-Agent Workflow"
-    - "Artifact Generation Endpoint"
-  test_all: false
-  test_priority: "stuck_first"
+    - "Google Gemini Live API Integration"
+    - "Text Mode Multi-Agent Workflow (Gemini)"
+    - "Artifact Generation with Gemini"
+    - "Frontend Voice Mode UI (Gemini only)"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
