@@ -270,8 +270,8 @@ class BackendTester:
                 self.log_result(f"Artifact Generation ({artifact_type})", False, "Request failed", str(e))
 
     async def test_websocket_workflow(self):
-        """Test 5: WebSocket Text Mode Workflow"""
-        print("🔍 Test 5: WebSocket Workflow (Text Mode)")
+        """Test 7: WebSocket Text Mode Workflow"""
+        print("🔍 Test 7: WebSocket Workflow (Text Mode)")
         
         if not self.test_project_id:
             self.log_result("WebSocket Workflow", False, "No test project available", "Create project first")
@@ -288,26 +288,31 @@ class BackendTester:
                 # Send workflow start message
                 start_message = {
                     "action": "start_workflow",
-                    "brief": "Create a simple note-taking application with categories and search functionality"
+                    "brief": "Create a modern fitness tracking application with social features and AI-powered workout recommendations"
                 }
                 
                 await websocket.send(json.dumps(start_message))
                 print("    📤 Sent workflow start message")
                 
-                # Collect messages for up to 2 minutes
+                # Collect messages for up to 3 minutes (increased for comprehensive testing)
                 messages_received = []
                 workflow_complete = False
                 start_time = time.time()
-                timeout = 120  # 2 minutes
+                timeout = 180  # 3 minutes
+                agents_completed = set()
                 
                 while time.time() - start_time < timeout and not workflow_complete:
                     try:
-                        message = await asyncio.wait_for(websocket.recv(), timeout=10)
+                        message = await asyncio.wait_for(websocket.recv(), timeout=15)
                         data = json.loads(message)
                         messages_received.append(data)
                         
                         msg_type = data.get('type')
                         print(f"    📨 Received: {msg_type}")
+                        
+                        if msg_type == 'agent_status' and data.get('status') == 'completed':
+                            agents_completed.add(data.get('agent_role'))
+                            print(f"    ✅ Agent {data.get('agent_role')} completed")
                         
                         if msg_type == 'workflow_complete':
                             workflow_complete = True
@@ -327,15 +332,58 @@ class BackendTester:
                 if workflow_complete:
                     agent_messages = [m for m in messages_received if m.get('type') == 'agent_message']
                     artifacts = [m for m in messages_received if m.get('type') == 'artifact_ready']
+                    expected_agents = {'pm', 'ba', 'ux', 'ui'}
                     
-                    self.log_result("WebSocket Workflow", True, 
-                                  f"Workflow completed! {len(agent_messages)} messages, {len(artifacts)} artifacts")
+                    success_msg = f"Workflow completed! {len(agent_messages)} messages, {len(artifacts)} artifacts"
+                    if agents_completed == expected_agents:
+                        success_msg += f", All 4 agents completed: {sorted(agents_completed)}"
+                    else:
+                        success_msg += f", Agents completed: {sorted(agents_completed)}"
+                    
+                    self.log_result("WebSocket Workflow", True, success_msg)
                 else:
                     self.log_result("WebSocket Workflow", False, 
-                                  f"Workflow timeout after {timeout}s", f"Received {len(messages_received)} messages")
+                                  f"Workflow timeout after {timeout}s", 
+                                  f"Received {len(messages_received)} messages, Agents: {sorted(agents_completed)}")
                     
         except Exception as e:
             self.log_result("WebSocket Workflow", False, "WebSocket connection failed", str(e))
+
+    def test_crud_operations(self):
+        """Test 8: Additional CRUD Operations"""
+        print("🔍 Test 8: CRUD Operations")
+        
+        if not self.test_project_id:
+            self.log_result("CRUD Operations", False, "No test project available", "Create project first")
+            return
+
+        # Test 8a: Get Project Artifacts
+        try:
+            response = self.session.get(f"{API_BASE}/projects/{self.test_project_id}/artifacts")
+            if response.status_code == 200:
+                artifacts = response.json()
+                if isinstance(artifacts, list):
+                    self.log_result("Get Project Artifacts", True, f"Retrieved {len(artifacts)} artifacts")
+                else:
+                    self.log_result("Get Project Artifacts", False, "Invalid response format", str(artifacts))
+            else:
+                self.log_result("Get Project Artifacts", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Get Project Artifacts", False, "Request failed", str(e))
+
+        # Test 8b: Get Project Messages
+        try:
+            response = self.session.get(f"{API_BASE}/projects/{self.test_project_id}/messages")
+            if response.status_code == 200:
+                messages = response.json()
+                if isinstance(messages, list):
+                    self.log_result("Get Project Messages", True, f"Retrieved {len(messages)} messages")
+                else:
+                    self.log_result("Get Project Messages", False, "Invalid response format", str(messages))
+            else:
+                self.log_result("Get Project Messages", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Get Project Messages", False, "Request failed", str(e))
 
     async def run_all_tests(self):
         """Run all backend tests"""
