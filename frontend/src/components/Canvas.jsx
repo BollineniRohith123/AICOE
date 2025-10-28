@@ -1,82 +1,130 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText, Users, Layout, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { FileText, Users, Layout, Sparkles, Code, Eye } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ReactRenderer from './ReactRenderer';
 
-const Canvas = ({ artifacts, mode }) => {
+const EnhancedCanvas = ({ artifacts, mode }) => {
   const [activeTab, setActiveTab] = useState('welcome');
+  const [prototypeView, setPrototypeView] = useState('preview'); // 'preview' or 'code'
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (artifacts.length > 0) {
       const latestArtifact = artifacts[artifacts.length - 1];
       setActiveTab(latestArtifact.type);
     }
   }, [artifacts]);
 
-  const renderMarkdown = (content) => {
-    return content
-      .split('\n')
-      .map((line, i) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={i} className="text-3xl font-bold text-slate-900 mt-6 mb-4">{line.substring(2)}</h1>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={i} className="text-2xl font-semibold text-slate-800 mt-5 mb-3">{line.substring(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={i} className="text-xl font-semibold text-slate-700 mt-4 mb-2">{line.substring(4)}</h3>;
-        }
-        if (line.startsWith('- ')) {
-          return <li key={i} className="ml-4 text-slate-700 mb-1">{line.substring(2)}</li>;
-        }
-        if (/^\d+\./.test(line)) {
-          return <li key={i} className="ml-4 text-slate-700 mb-1">{line.substring(line.indexOf('.') + 1)}</li>;
-        }
-        if (line.trim() === '') {
-          return <div key={i} className="h-2"></div>;
-        }
-        return <p key={i} className="text-slate-700 mb-2 leading-relaxed">{line}</p>;
-      });
-  };
-
   const WelcomeScreen = () => (
     <div className="flex items-center justify-center h-full p-12">
-      <div className="max-w-2xl text-center">
+      <div className="max-w-3xl text-center animate-fade-in">
         <div className="mb-8 flex justify-center">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Sparkles className="w-12 h-12 text-white" />
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl blur-xl opacity-30 animate-pulse"></div>
+            <div className="relative w-28 h-28 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl transform hover:scale-110 transition-transform duration-300">
+              <Sparkles className="w-14 h-14 text-white" />
+            </div>
           </div>
         </div>
-        <h2 className="text-4xl font-bold text-slate-900 mb-4" style={{ fontFamily: 'Space Grotesk' }}>
+        <h2 className="text-5xl font-bold text-slate-900 mb-4 animate-slide-in" style={{ fontFamily: 'Space Grotesk' }}>
           Welcome to AICOE Genesis
         </h2>
-        <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+        <p className="text-xl text-slate-600 mb-10 leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
           Transform your software ideas into tangible design artifacts with AI-powered multi-agent collaboration.
         </p>
-        <div className="grid grid-cols-3 gap-6 text-left">
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition">
-            <FileText className="w-8 h-8 text-blue-600 mb-3" />
-            <h3 className="font-semibold text-slate-900 mb-2">Vision Document</h3>
-            <p className="text-sm text-slate-600">Comprehensive product vision and strategy</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition">
-            <Users className="w-8 h-8 text-indigo-600 mb-3" />
-            <h3 className="font-semibold text-slate-900 mb-2">Use Cases</h3>
-            <p className="text-sm text-slate-600">Detailed user stories and journeys</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition">
-            <Layout className="w-8 h-8 text-purple-600 mb-3" />
-            <h3 className="font-semibold text-slate-900 mb-2">Prototype</h3>
-            <p className="text-sm text-slate-600">Interactive HTML prototype</p>
-          </div>
+        <div className="grid grid-cols-3 gap-8 text-left">
+          {[
+            { icon: FileText, color: 'blue', title: 'Vision Document', desc: 'Comprehensive product strategy and vision' },
+            { icon: Users, color: 'indigo', title: 'Use Cases', desc: 'Detailed user stories and journeys' },
+            { icon: Layout, color: 'purple', title: 'React Prototype', desc: 'Interactive React application' }
+          ].map((item, idx) => (
+            <div
+              key={item.title}
+              className="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fade-in"
+              style={{ animationDelay: `${0.3 + idx * 0.1}s` }}
+            >
+              <div className={`w-14 h-14 bg-gradient-to-br from-${item.color}-100 to-${item.color}-200 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                <item.icon className={`w-7 h-7 text-${item.color}-600`} />
+              </div>
+              <h3 className="font-semibold text-slate-900 mb-2 text-lg">{item.title}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
         </div>
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
-          <p className="text-sm text-blue-900">
-            <strong>How it works:</strong> Choose Text Mode for structured multi-agent workflow, or Voice Mode for natural conversation.
+        <div className="mt-10 p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <p className="text-sm text-slate-800">
+            <strong className="text-blue-900">How it works:</strong> Choose Text Mode for structured multi-agent workflow, or Voice Mode for natural conversation.
           </p>
         </div>
       </div>
     </div>
+  );
+
+  const renderMarkdownWithCode = (content) => (
+    <ReactMarkdown
+      className="prose prose-slate max-w-none"
+      components={{
+        h1: ({ children }) => (
+          <h1 className="text-4xl font-bold text-slate-900 mt-8 mb-4 pb-3 border-b-2 border-blue-200 animate-slide-in">
+            {children}
+          </h1>
+        ),
+        h2: ({ children }) => (
+          <h2 className="text-3xl font-semibold text-slate-800 mt-7 mb-3 animate-slide-in">
+            {children}
+          </h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="text-2xl font-semibold text-slate-700 mt-6 mb-2 animate-fade-in">
+            {children}
+          </h3>
+        ),
+        p: ({ children }) => (
+          <p className="text-slate-700 mb-4 leading-relaxed animate-fade-in">
+            {children}
+          </p>
+        ),
+        ul: ({ children }) => (
+          <ul className="list-none space-y-2 my-4 animate-fade-in">
+            {children}
+          </ul>
+        ),
+        li: ({ children }) => (
+          <li className="flex items-start space-x-3 text-slate-700 animate-slide-in">
+            <span className="text-blue-600 mt-1 flex-shrink-0">•</span>
+            <span>{children}</span>
+          </li>
+        ),
+        code: ({ inline, className, children }) => {
+          const match = /language-(\w+)/.exec(className || '');
+          return !inline && match ? (
+            <SyntaxHighlighter
+              style={vscDarkPlus}
+              language={match[1]}
+              PreTag="div"
+              className="rounded-lg my-4 animate-fade-in"
+            >
+              {String(children).replace(/\n$/, '')}
+            </SyntaxHighlighter>
+          ) : (
+            <code className="bg-slate-100 text-slate-800 px-2 py-1 rounded text-sm font-mono">
+              {children}
+            </code>
+          );
+        },
+        blockquote: ({ children }) => (
+          <blockquote className="border-l-4 border-blue-500 pl-4 py-2 my-4 bg-blue-50 italic text-slate-700 animate-fade-in">
+            {children}
+          </blockquote>
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
   );
 
   const hasArtifacts = artifacts.length > 0;
@@ -85,27 +133,41 @@ const Canvas = ({ artifacts, mode }) => {
     return <WelcomeScreen />;
   }
 
+  const prototypeArtifact = artifacts.find(a => a.type === 'prototype');
+
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 to-blue-50">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        <div className="border-b border-slate-200 bg-white px-6 pt-6">
-          <TabsList className="w-full justify-start">
+        <div className="border-b border-slate-200 bg-white/80 backdrop-blur-sm px-6 pt-6 shadow-sm">
+          <TabsList className="w-full justify-start bg-slate-100 p-1">
             {artifacts.find(a => a.type === 'vision') && (
-              <TabsTrigger value="vision" data-testid="vision-tab">
+              <TabsTrigger
+                value="vision"
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
+                data-testid="vision-tab"
+              >
                 <FileText className="w-4 h-4 mr-2" />
                 Vision Document
               </TabsTrigger>
             )}
             {artifacts.find(a => a.type === 'usecases') && (
-              <TabsTrigger value="usecases" data-testid="usecases-tab">
+              <TabsTrigger
+                value="usecases"
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
+                data-testid="usecases-tab"
+              >
                 <Users className="w-4 h-4 mr-2" />
                 Use Cases
               </TabsTrigger>
             )}
-            {artifacts.find(a => a.type === 'prototype') && (
-              <TabsTrigger value="prototype" data-testid="prototype-tab">
+            {prototypeArtifact && (
+              <TabsTrigger
+                value="prototype"
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
+                data-testid="prototype-tab"
+              >
                 <Layout className="w-4 h-4 mr-2" />
-                Prototype
+                React Prototype
               </TabsTrigger>
             )}
           </TabsList>
@@ -113,34 +175,78 @@ const Canvas = ({ artifacts, mode }) => {
 
         <div className="flex-1 overflow-hidden">
           {artifacts.find(a => a.type === 'vision') && (
-            <TabsContent value="vision" className="h-full m-0">
+            <TabsContent value="vision" className="h-full m-0 animate-fade-in">
               <ScrollArea className="h-full">
-                <div className="p-8 max-w-4xl mx-auto" data-testid="vision-content">
-                  {renderMarkdown(artifacts.find(a => a.type === 'vision').content)}
+                <div className="p-10 max-w-5xl mx-auto" data-testid="vision-content">
+                  {renderMarkdownWithCode(artifacts.find(a => a.type === 'vision').content)}
                 </div>
               </ScrollArea>
             </TabsContent>
           )}
 
           {artifacts.find(a => a.type === 'usecases') && (
-            <TabsContent value="usecases" className="h-full m-0">
+            <TabsContent value="usecases" className="h-full m-0 animate-fade-in">
               <ScrollArea className="h-full">
-                <div className="p-8 max-w-4xl mx-auto" data-testid="usecases-content">
-                  {renderMarkdown(artifacts.find(a => a.type === 'usecases').content)}
+                <div className="p-10 max-w-5xl mx-auto" data-testid="usecases-content">
+                  {renderMarkdownWithCode(artifacts.find(a => a.type === 'usecases').content)}
                 </div>
               </ScrollArea>
             </TabsContent>
           )}
 
-          {artifacts.find(a => a.type === 'prototype') && (
-            <TabsContent value="prototype" className="h-full m-0">
-              <div className="h-full bg-white" data-testid="prototype-content">
-                <iframe
-                  srcDoc={artifacts.find(a => a.type === 'prototype').content}
-                  className="w-full h-full border-none"
-                  title="Prototype"
-                  sandbox="allow-scripts allow-same-origin"
-                />
+          {prototypeArtifact && (
+            <TabsContent value="prototype" className="h-full m-0 animate-fade-in">
+              <div className="h-full flex flex-col">
+                {/* View Toggle */}
+                <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
+                  <h3 className="font-semibold text-slate-900">React Application</h3>
+                  <div className="flex items-center space-x-2 bg-slate-100 rounded-lg p-1">
+                    <Button
+                      variant={prototypeView === 'preview' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setPrototypeView('preview')}
+                      className="transition-all duration-200"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Preview
+                    </Button>
+                    <Button
+                      variant={prototypeView === 'code' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setPrototypeView('code')}
+                      className="transition-all duration-200"
+                    >
+                      <Code className="w-4 h-4 mr-2" />
+                      Code
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-hidden" data-testid="prototype-content">
+                  {prototypeView === 'preview' ? (
+                    <div className="h-full bg-white">
+                      <ReactRenderer code={prototypeArtifact.content} />
+                    </div>
+                  ) : (
+                    <ScrollArea className="h-full bg-slate-900">
+                      <div className="p-6">
+                        <SyntaxHighlighter
+                          language="javascript"
+                          style={vscDarkPlus}
+                          customStyle={{
+                            margin: 0,
+                            borderRadius: '0.5rem',
+                            fontSize: '0.875rem',
+                          }}
+                          showLineNumbers
+                        >
+                          {prototypeArtifact.content}
+                        </SyntaxHighlighter>
+                      </div>
+                    </ScrollArea>
+                  )}
+                </div>
               </div>
             </TabsContent>
           )}
@@ -150,4 +256,4 @@ const Canvas = ({ artifacts, mode }) => {
   );
 };
 
-export default Canvas;
+export default EnhancedCanvas;
