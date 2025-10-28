@@ -467,17 +467,13 @@ const VoiceInterface = ({ onArtifactReady, currentProject, onProjectStart }) => 
       setIsInitializing(false);
       
       // Add welcome message
-      const welcomeText = provider === 'openai' 
-        ? "Hello! I'm your AI Architect powered by OpenAI. Tell me about your software project idea!"
-        : "Hello! I'm your AI Architect powered by Google Gemini. Tell me about your software project idea!";
-      
       setTranscript([{
         role: 'assistant',
-        text: welcomeText,
+        text: "Hello! I'm your AI Architect powered by Google Gemini. Tell me about your software project idea, and I'll help you design it!",
         timestamp: new Date()
       }]);
 
-      toast.success(`Voice mode activated with ${provider.toUpperCase()} - Start speaking!`);
+      toast.success('Voice mode activated with Gemini Live - Start speaking!');
 
     } catch (error) {
       console.error('Error starting voice mode:', error);
