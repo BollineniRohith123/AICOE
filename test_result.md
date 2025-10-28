@@ -134,9 +134,9 @@ backend:
 
   - task: "Text Mode WebSocket Workflow"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -146,6 +146,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: WebSocket workflow functional. Connection established, agents process workflow (PM→BA handoff working), real-time status updates sent. Minor issue: WebSocket keepalive timeout during long AI processing, but core functionality works."
+      - working: false
+        agent: "testing"
+        comment: "❌ BLOCKED: Multi-agent workflow blocked by LLM budget limit. WebSocket connection and message initiation work correctly, but workflow fails with 'Budget has been exceeded! Current cost: 0.418, Max budget: 0.4'. This prevents testing of the full 4-agent workflow (PM→BA→UX→UI). Infrastructure is working, but usage limits prevent execution."
 
   - task: "OpenAI Realtime Voice API Integration"
     implemented: true
