@@ -274,11 +274,14 @@ frontend:
     file: "frontend/src/components/ConversationPanel.jsx, frontend/src/components/AgentTimeline.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Beautiful animated agent timeline showing real-time workflow progress with status indicators, messages, and handoffs."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Text Mode UI working perfectly. Mode toggle switch functional, project brief input accepts text correctly, Start Project button triggers WebSocket connection successfully. Agent timeline appears with proper status indicators (PM agent shows 'Working...' status). Two-panel layout renders correctly. WebSocket connection established to backend."
 
   - task: "Voice Mode with WebRTC Integration"
     implemented: true
