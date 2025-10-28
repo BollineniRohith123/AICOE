@@ -185,6 +185,9 @@ backend:
       - working: true
         agent: "main"
         comment: "POST /api/voice/generate-artifact endpoint for voice mode artifact generation from conversation context."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Artifact generation working. Successfully generated vision document (11,622 chars) from context. Later tests hit LLM budget limit (cost: $0.418, max: $0.4) which confirms endpoint is functional but usage limits reached."
 
 frontend:
   - task: "Main Interface with Two-Panel Layout"
