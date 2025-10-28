@@ -138,7 +138,7 @@ backend:
     file: "backend/server.py"
     stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -152,6 +152,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ STILL BLOCKED: Despite Gemini-only configuration, text mode workflow still fails with budget limit error 'Budget has been exceeded! Current cost: 0.41803625000000005, Max budget: 0.4'. The issue is that emergentintegrations library is routing gemini-2.5-pro through a budget-limited service instead of direct Gemini API. WebSocket connection and infrastructure work correctly."
+      - working: false
+        agent: "testing"
+        comment: "✅ BUDGET LIMIT FIX SUCCESSFUL: The emergentintegrations budget limit issue is RESOLVED. EnhancedAgentOrchestrator now uses direct genai.Client() instead of emergentintegrations. However, workflow now fails with Gemini API free tier quota limit: '429 RESOURCE_EXHAUSTED - You exceeded your current quota, limit: 50 requests per day for gemini-2.5-pro'. This is expected behavior - the fix worked, but we've hit Google's free tier limits. WebSocket infrastructure working correctly."
 
   - task: "OpenAI Realtime Voice API Integration"
     implemented: true
