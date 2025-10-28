@@ -425,7 +425,7 @@ Create a complete React application based on all of the above. Remember: ONLY ou
         }
         await db.artifacts.insert_one(artifact_doc)
 
-orchestrator = EnhancedAgentOrchestrator(EMERGENT_LLM_KEY)
+orchestrator = EnhancedAgentOrchestrator(GEMINI_API_KEY)
 
 # ==================== REALTIME VOICE API ====================
 
