@@ -276,20 +276,33 @@ Create a visually stunning, fully functional React application."""
         }
     
     async def run_agent(self, agent_role: str, context: str, project_id: str) -> tuple[str, str]:
-        """Run a specific agent and return its response"""
+        """Run a specific agent and return its response using direct Gemini API"""
         agent_info = self.agents[agent_role]
-        session_id = f"{project_id}_{agent_role}_{uuid.uuid4().hex[:8]}"
         
-        chat = LlmChat(
-            api_key=self.api_key,
-            session_id=session_id,
-            system_message=agent_info["system_prompt"]
-        ).with_model("gemini", "gemini-2.5-pro")
-        
-        user_message = UserMessage(text=context)
-        response = await chat.send_message(user_message)
-        
-        return agent_info["name"], response
+        # Use direct Gemini API instead of emergentintegrations
+        try:
+            # Prepare the conversation with system prompt and user message
+            contents = [
+                {"role": "user", "parts": [{"text": f"{agent_info['system_prompt']}\n\n{context}"}]}
+            ]
+            
+            # Make streaming request to Gemini 2.5 Pro
+            response_stream = self.gemini_client.models.generate_content_stream(
+                model="gemini-2.5-pro",
+                contents=contents
+            )
+            
+            # Collect the full response
+            full_response = ""
+            for chunk in response_stream:
+                if hasattr(chunk, 'text'):
+                    full_response += chunk.text
+            
+            return agent_info["name"], full_response
+            
+        except Exception as e:
+            logger.error(f"Error in run_agent for {agent_role}: {str(e)}")
+            raise
     
     async def process_workflow(self, project_id: str, initial_brief: str, websocket: WebSocket):
         """Process the entire multi-agent workflow"""
