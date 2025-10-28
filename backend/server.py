@@ -542,7 +542,7 @@ async def gemini_live_websocket(websocket: WebSocket):
             pass
 
 # Get realtime provider configuration endpoint
-@realtime_router.get("/config")
+@realtime_router.get("/realtime/config")
 async def get_realtime_config():
     """Get current realtime API configuration"""
     return {
