@@ -235,7 +235,6 @@ const EnhancedCanvas = ({ artifacts, mode }) => {
                       <div className="p-6">
                         <SyntaxHighlighter
                           language="javascript"
-                          style={vscDarkPlus}
                           customStyle={{
                             margin: 0,
                             borderRadius: '0.5rem',
