@@ -387,29 +387,46 @@ class BackendTester:
 
     async def run_all_tests(self):
         """Run all backend tests"""
-        print("🚀 Starting AICOE Genesis Backend Tests")
+        print("🚀 Starting AICOE Genesis Backend Tests - DUAL REALTIME API SUPPORT")
         print("=" * 80)
         
         # Run synchronous tests
         self.test_health_check()
         self.test_project_management()
-        self.test_realtime_endpoints()
+        
+        # Test realtime configuration first
+        config = self.test_realtime_config()
+        
+        # Test OpenAI endpoints
+        self.test_openai_realtime_endpoints()
+        
+        # Test Gemini WebSocket (async)
+        await self.test_gemini_websocket()
+        
+        # Test artifact generation
         self.test_artifact_generation()
         
-        # Run async WebSocket test
+        # Test WebSocket workflow
         await self.test_websocket_workflow()
+        
+        # Test additional CRUD operations
+        self.test_crud_operations()
         
         # Print summary
         print("=" * 80)
-        print("📊 TEST SUMMARY")
+        print("📊 COMPREHENSIVE TEST SUMMARY")
         print(f"✅ Passed: {self.results['passed']}")
         print(f"❌ Failed: {self.results['failed']}")
-        print(f"📈 Success Rate: {(self.results['passed']/(self.results['passed']+self.results['failed'])*100):.1f}%")
+        total_tests = self.results['passed'] + self.results['failed']
+        if total_tests > 0:
+            print(f"📈 Success Rate: {(self.results['passed']/total_tests*100):.1f}%")
         
         if self.results['errors']:
-            print("\n🚨 ERRORS FOUND:")
+            print("\n🚨 CRITICAL ISSUES FOUND:")
             for error in self.results['errors']:
                 print(f"  • {error}")
+        else:
+            print("\n🎉 NO CRITICAL ISSUES FOUND!")
         
         print(f"\n⏰ Test Completed: {datetime.now()}")
         return self.results
