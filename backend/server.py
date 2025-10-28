@@ -402,7 +402,7 @@ orchestrator = EnhancedAgentOrchestrator(EMERGENT_LLM_KEY)
 realtime_chat = OpenAIChatRealtime(api_key=EMERGENT_LLM_KEY)
 
 # Create realtime router
-realtime_router = APIRouter(prefix="/realtime")
+realtime_router = APIRouter()
 OpenAIChatRealtime.register_openai_realtime_router(realtime_router, realtime_chat)
 
 # ==================== API ROUTES ====================
