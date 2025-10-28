@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Request
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -14,6 +15,15 @@ from datetime import datetime, timezone
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from emergentintegrations.llm.openai import OpenAIChatRealtime
 
+# Import Google Gemini Live API components
+try:
+    from google import genai
+    from google.genai import types
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    logger.warning("Google Gemini packages not available")
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -22,8 +32,14 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Get API key
+# Get API keys
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+
+# Realtime API configuration
+ENABLE_OPENAI_REALTIME = os.environ.get('ENABLE_OPENAI_REALTIME', 'true').lower() == 'true'
+ENABLE_GEMINI_LIVE = os.environ.get('ENABLE_GEMINI_LIVE', 'false').lower() == 'true'
+REALTIME_PROVIDER = os.environ.get('REALTIME_PROVIDER', 'openai').lower()
 
 # Create the main app
 app = FastAPI()
