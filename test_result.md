@@ -327,12 +327,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Google Gemini Live API Integration"
     - "Frontend Voice Mode UI (Gemini only)"
-  stuck_tasks:
-    - "Text Mode Multi-Agent Workflow (Gemini)"
-    - "Artifact Generation with Gemini"
-  test_all: true
+    - "Frontend Text Mode UI Testing"
+  stuck_tasks: []
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
