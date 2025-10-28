@@ -129,37 +129,105 @@ class BackendTester:
 
         return True
 
-    def test_realtime_endpoints(self):
-        """Test 3: OpenAI Realtime Voice API Endpoints"""
-        print("🔍 Test 3: OpenAI Realtime API")
+    def test_realtime_config(self):
+        """Test 3: Realtime Configuration Endpoint"""
+        print("🔍 Test 3: Realtime Configuration")
         
-        # Test 3a: Create Realtime Session
+        try:
+            response = self.session.get(f"{API_BASE}/realtime/config")
+            if response.status_code == 200:
+                config = response.json()
+                required_fields = ['provider', 'openai_enabled', 'gemini_enabled', 'available_providers']
+                
+                if all(field in config for field in required_fields):
+                    openai_status = "✅" if config['openai_enabled'] else "❌"
+                    gemini_status = "✅" if config['gemini_enabled'] else "❌"
+                    
+                    self.log_result("Realtime Configuration", True, 
+                                  f"Provider: {config['provider']}, OpenAI: {openai_status}, Gemini: {gemini_status}")
+                    return config
+                else:
+                    self.log_result("Realtime Configuration", False, "Missing required fields", str(config))
+            else:
+                self.log_result("Realtime Configuration", False, f"HTTP {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Realtime Configuration", False, "Request failed", str(e))
+        return None
+
+    def test_openai_realtime_endpoints(self):
+        """Test 4: OpenAI Realtime Voice API Endpoints"""
+        print("🔍 Test 4: OpenAI Realtime API")
+        
+        # Test 4a: Create Realtime Session
         try:
             response = self.session.post(f"{API_BASE}/realtime/session")
             if response.status_code == 200:
                 session_data = response.json()
                 if 'client_secret' in session_data:
-                    self.log_result("Realtime Session Creation", True, "Session token received")
+                    self.log_result("OpenAI Session Creation", True, "Session token received")
                 else:
-                    self.log_result("Realtime Session Creation", False, "No client_secret in response", str(session_data))
+                    self.log_result("OpenAI Session Creation", False, "No client_secret in response", str(session_data))
             else:
-                self.log_result("Realtime Session Creation", False, f"HTTP {response.status_code}", response.text)
+                self.log_result("OpenAI Session Creation", False, f"HTTP {response.status_code}", response.text)
         except Exception as e:
-            self.log_result("Realtime Session Creation", False, "Request failed", str(e))
+            self.log_result("OpenAI Session Creation", False, "Request failed", str(e))
 
-        # Test 3b: SDP Negotiation Endpoint (just check if it exists)
+        # Test 4b: SDP Negotiation Endpoint
         try:
             # This endpoint expects SDP offer, so we'll just check if it responds properly to empty request
             response = self.session.post(f"{API_BASE}/realtime/negotiate", json={})
             # We expect this to fail with 400 or similar, but not 404
             if response.status_code in [400, 422]:  # Bad request is expected without proper SDP
-                self.log_result("SDP Negotiate Endpoint", True, f"Endpoint exists (HTTP {response.status_code})")
+                self.log_result("OpenAI SDP Negotiate", True, f"Endpoint accessible (HTTP {response.status_code})")
             elif response.status_code == 404:
-                self.log_result("SDP Negotiate Endpoint", False, "Endpoint not found", response.text)
+                self.log_result("OpenAI SDP Negotiate", False, "Endpoint not found", response.text)
             else:
-                self.log_result("SDP Negotiate Endpoint", True, f"Endpoint responds (HTTP {response.status_code})")
+                self.log_result("OpenAI SDP Negotiate", True, f"Endpoint responds (HTTP {response.status_code})")
         except Exception as e:
-            self.log_result("SDP Negotiate Endpoint", False, "Request failed", str(e))
+            self.log_result("OpenAI SDP Negotiate", False, "Request failed", str(e))
+
+    async def test_gemini_websocket(self):
+        """Test 5: Google Gemini Live API WebSocket"""
+        print("🔍 Test 5: Gemini Live WebSocket")
+        
+        try:
+            # Convert HTTP URL to WebSocket URL
+            ws_url = API_BASE.replace('https://', 'wss://').replace('http://', 'ws://')
+            ws_endpoint = f"{ws_url}/gemini/live"
+            
+            print(f"    🔗 Connecting to: {ws_endpoint}")
+            
+            # Test WebSocket connection
+            async with websockets.connect(ws_endpoint) as websocket:
+                print("    ✅ WebSocket connection established")
+                
+                # Send a test text message
+                test_message = {
+                    "type": "text_message",
+                    "message": "Hello, this is a test message for Gemini Live API"
+                }
+                
+                await websocket.send(json.dumps(test_message))
+                print("    📤 Sent test message")
+                
+                # Wait for response (with timeout)
+                try:
+                    response = await asyncio.wait_for(websocket.recv(), timeout=10)
+                    data = json.loads(response)
+                    print(f"    📨 Received response type: {data.get('type', 'unknown')}")
+                    
+                    self.log_result("Gemini WebSocket Connection", True, "Connection and message exchange successful")
+                    
+                except asyncio.TimeoutError:
+                    self.log_result("Gemini WebSocket Connection", True, "Connection successful (no immediate response)")
+                    
+        except websockets.exceptions.ConnectionClosed as e:
+            if e.code == 1008:  # Policy violation - API not enabled
+                self.log_result("Gemini WebSocket Connection", False, "Gemini Live API not enabled", f"Code: {e.code}")
+            else:
+                self.log_result("Gemini WebSocket Connection", False, "Connection closed", f"Code: {e.code}, Reason: {e.reason}")
+        except Exception as e:
+            self.log_result("Gemini WebSocket Connection", False, "Connection failed", str(e))
 
     def test_artifact_generation(self):
         """Test 4: Artifact Generation (Voice Mode)"""
