@@ -226,7 +226,7 @@ backend:
     implemented: true
     working: false
     file: "backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "medium"
     needs_retesting: false
     status_history:
@@ -239,6 +239,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ BLOCKED: Artifact generation blocked by LLM budget limit. Endpoint structure and logic are correct, but all generation requests return HTTP 500 due to 'Budget has been exceeded'. Previously working functionality now blocked by usage limits. Endpoint accessible and properly configured."
+      - working: false
+        agent: "testing"
+        comment: "❌ STILL BLOCKED: All artifact generation endpoints (vision, usecases, prototype) return HTTP 500 due to same budget limit issue. The emergentintegrations library with gemini-2.5-pro model is still hitting the $0.4 budget limit despite Gemini configuration. Need to use direct Gemini API instead of emergentintegrations for text mode features."
 
 frontend:
   - task: "Main Interface with Two-Panel Layout"
