@@ -12,8 +12,9 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
-from emergentintegrations.llm.chat import LlmChat, UserMessage
-from emergentintegrations.llm.openai import OpenAIChatRealtime
+# Note: Using direct google.genai SDK for text mode to avoid budget limits
+# from emergentintegrations.llm.chat import LlmChat, UserMessage  # Not used - replaced with direct Gemini API
+from emergentintegrations.llm.openai import OpenAIChatRealtime  # Kept for future OpenAI integration
 
 # Import Google Gemini Live API components
 try:
