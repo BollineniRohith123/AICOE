@@ -215,9 +215,9 @@ backend:
 
   - task: "Artifact Generation Endpoint"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "medium"
     needs_retesting: false
     status_history:
@@ -227,6 +227,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: Artifact generation working. Successfully generated vision document (11,622 chars) from context. Later tests hit LLM budget limit (cost: $0.418, max: $0.4) which confirms endpoint is functional but usage limits reached."
+      - working: false
+        agent: "testing"
+        comment: "❌ BLOCKED: Artifact generation blocked by LLM budget limit. Endpoint structure and logic are correct, but all generation requests return HTTP 500 due to 'Budget has been exceeded'. Previously working functionality now blocked by usage limits. Endpoint accessible and properly configured."
 
 frontend:
   - task: "Main Interface with Two-Panel Layout"
