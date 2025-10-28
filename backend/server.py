@@ -396,6 +396,15 @@ Create a complete React application based on all of the above. Remember: ONLY ou
 
 orchestrator = EnhancedAgentOrchestrator(EMERGENT_LLM_KEY)
 
+# ==================== REALTIME VOICE API ====================
+
+# Initialize OpenAI Realtime for voice
+realtime_chat = OpenAIChatRealtime(api_key=EMERGENT_LLM_KEY)
+
+# Create realtime router
+realtime_router = APIRouter(prefix="/realtime")
+OpenAIChatRealtime.register_openai_realtime_router(realtime_router, realtime_chat)
+
 # ==================== API ROUTES ====================
 
 @api_router.get("/")
